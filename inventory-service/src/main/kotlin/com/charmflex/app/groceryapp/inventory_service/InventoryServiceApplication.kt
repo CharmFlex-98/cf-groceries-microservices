@@ -1,11 +1,11 @@
-package com.charmflex.app.barcodescanner
+package com.charmflex.app.groceryapp.inventory_service
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-class BarcodescannerApplication
+class InventoryServiceApplication
 
 fun main(args: Array<String>) {
-	runApplication<BarcodescannerApplication>(*args)
+	runApplication<InventoryServiceApplication>(*args)
 }
