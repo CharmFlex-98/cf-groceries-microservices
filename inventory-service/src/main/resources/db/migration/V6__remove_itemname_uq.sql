@@ -1,0 +1,2 @@
+ALTER TABLE groceries
+DROP CONSTRAINT groceries_item_name_key;

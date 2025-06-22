@@ -1,6 +1,6 @@
 package com.charmflex.app.barcodescanner.configs
 
-import com.charmflex.app.barcodescanner.modules.auth.filters.JwtFilter
+import com.charmflex.app.barcodescanner.auth.filters.JwtFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
