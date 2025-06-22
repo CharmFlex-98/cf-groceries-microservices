@@ -1,4 +1,5 @@
 package com.charmflex.app.groceryapp.inventory_service.inventory.controller
+import com.charmflex.app.groceryapp.events.InventoryCreatedEvent
 import com.charmflex.app.groceryapp.inventory_service.inventory.domain.models.InventorySummary
 import com.charmflex.app.groceryapp.inventory_service.inventory.domain.models.UserGrocery
 import com.charmflex.app.groceryapp.inventory_service.inventory.domain.models.UserInventory
@@ -7,12 +8,15 @@ import com.charmflex.app.groceryapp.inventory_service.inventory.dto.CreateGrocer
 import com.charmflex.app.groceryapp.inventory_service.inventory.dto.CreateInventoryRequest
 import com.charmflex.app.groceryapp.inventory_service.inventory.dto.RemoveInventoryRequest
 import org.springframework.http.HttpStatus
+import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.web.bind.annotation.*
+
 
 @RestController
 @RequestMapping("api/v1/inventory")
 class InventoryController(
-    private val repository: InventoryRepository
+    private val repository: InventoryRepository,
+    private val kafkaTemplate: KafkaTemplate<String, InventoryCreatedEvent>
 ) {
     @ResponseStatus(code = HttpStatus.CREATED)
     @PostMapping("/groceries/create")
@@ -24,6 +28,7 @@ class InventoryController(
                 categoryId = createGroceryRequest.categoryId
             )
         )
+        kafkaTemplate.send("inventory-created", InventoryCreatedEvent(2, createGroceryRequest.name))
     }
 
     @ResponseStatus(code = HttpStatus.OK)
@@ -45,6 +50,7 @@ class InventoryController(
                 expiryDate = createInventoryRequest.expiryDate
             )
         )
+
     }
 
     @ResponseStatus(code = HttpStatus.OK)
