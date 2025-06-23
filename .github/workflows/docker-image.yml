@@ -29,8 +29,6 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Grant execute permission for Gradle wrapper
-      run: chmod +x ./gradlew
     # - name: Replacing placeholders of application properties
     #   run: |
     #     sed -i 's|${DATABASE_USERNAME}|${{ secrets.DATABASE_USERNAME }}|g' src/main/resources/application.properties
