@@ -37,7 +37,9 @@ jobs:
     #     sed -i 's|${DATABASE_PASSWORD}|${{ secrets.DATABASE_PASSWORD }}|g' src/main/resources/application.properties
     - name: build services images using gradle and publish
       run: |
-        echo "building services' images"
+        echo "building services images"
+        cd ${{ github.event.inputs.service }}
+        chmod +x ./gradlew
         ./gradlew bootBuildImage
         echo "done building..."
       env:
