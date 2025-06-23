@@ -1,9 +1,12 @@
+import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
+
 plugins {
 	kotlin("jvm") version "1.9.25"
 	kotlin("plugin.spring") version "1.9.25"
 	id("org.springframework.boot") version "3.5.3"
 	id("io.spring.dependency-management") version "1.1.7"
 }
+
 
 group = "com.charmflex.app.groceryapp"
 version = "0.0.1-SNAPSHOT"
@@ -45,4 +48,17 @@ kotlin {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+tasks.named<BootBuildImage>("bootBuildImage") {
+	val dockerUsername = System.getenv("DOCKER_LOGIN_USERNAME")
+	val dockerPassword = System.getenv("DOCKER_LOGIN_PW")
+	imageName.set("charmflex/microservices-grocery-${project.name}")
+	publish.set(true)
+	docker {
+		publishRegistry {
+			username.set(dockerUsername)
+			password.set(dockerPassword)
+		}
+	}
 }

@@ -1,3 +1,5 @@
+import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
+
 plugins {
 	kotlin("jvm") version "1.9.25"
 	kotlin("plugin.spring") version "1.9.25"
@@ -55,3 +57,16 @@ tasks.withType<Test> {
 //	source("src/main/resources/avro")
 //	outputDir.set(file("build/generated-avro-java"))
 //}
+
+tasks.named<BootBuildImage>("bootBuildImage") {
+	val dockerUsername = System.getenv("DOCKER_LOGIN_USERNAME")
+	val dockerPassword = System.getenv("DOCKER_LOGIN_PW")
+	imageName.set("charmflex/microservices-grocery-${project.name}")
+	publish.set(true)
+	docker {
+		publishRegistry {
+			username.set(dockerUsername)
+			password.set(dockerPassword)
+		}
+	}
+}
