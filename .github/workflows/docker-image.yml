@@ -41,5 +41,5 @@ jobs:
         ./gradlew bootBuildImage
         echo "done building..."
       env:
-        DOCKER_USERNAME: ${{ secrets.DOCKER_LOGIN_USERNAME  }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_LOGIN_PW }}
+        DOCKER_LOGIN_USERNAME: ${{ secrets.DOCKER_LOGIN_USERNAME  }}
+        DOCKER_LOGIN_PW: ${{ secrets.DOCKER_LOGIN_PW }}
