@@ -9,7 +9,7 @@ services:
   identity-service:
     image: charmflex/microservices-grocery-auth-service:latest
     ports:
-      - "3001:3001"
+      - "3011:3001"
     environment:
       GATEWAY_AUTH_SECRET: ${GATEWAY_AUTH_SECRET}
       POSTGRES_USER: ${POSTGRES_USER_AUTH}
@@ -19,12 +19,18 @@ services:
   inventory-service:
     image: charmflex/microservices-grocery-inventory-service:latest
     ports:
-      - "3002:3002"
+      - "3012:3002"
     environment:
       GATEWAY_AUTH_SECRET: ${GATEWAY_AUTH_SECRET}
       POSTGRES_USER: ${POSTGRES_USER_INVENTORY}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_INVENTORY}
-
+#
+#  notification-service:
+#    image: charmflex/microservices-grocery-notification-service:latest
+#    ports:
+#      - "3003:3003"
+#    environment:
+#      GATEWAY_AUTH_SECRET: ${GATEWAY_AUTH_SECRET}
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
@@ -71,13 +77,13 @@ services:
     ports:
       - "5434:5432"
     environment:
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD_INVENTORY}
+      - POSTGRES_USER=${POSTGRES_USER_INVENTORY}
+      - POSTGRES_DB=${POSTGRES_DB_INVENTORY}
     volumes:
       - postgres_v17_data_inventory:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}", ]
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER_INVENTORY}", "-d", "${POSTGRES_DB_INVENTORY}", ]
       interval: 5s
       timeout: 5s
       retries: 3
@@ -91,13 +97,13 @@ services:
     ports:
       - "5433:5432"
     environment:
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD_AUTH}
+      - POSTGRES_USER=${POSTGRES_USER_AUTH}
+      - POSTGRES_DB=${POSTGRES_DB_AUTH}
     volumes:
       - postgres_v17_data_auth:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}", ]
+      test: [ "CMD", "pg_isready", "-U", "${POSTGRES_USER_AUTH}", "-d", "${POSTGRES_DB_AUTH}", ]
       interval: 5s
       timeout: 5s
       retries: 3
