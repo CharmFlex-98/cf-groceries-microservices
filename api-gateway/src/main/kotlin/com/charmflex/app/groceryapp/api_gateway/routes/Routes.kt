@@ -1,6 +1,7 @@
 package com.charmflex.app.groceryapp.api_gateway.routes
 
 import com.charmflex.app.groceryapp.api_gateway.filters.GatewayHeadersFilterFunction
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.cloud.gateway.server.mvc.filter.CircuitBreakerFilterFunctions
 import org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctions
 import org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions
@@ -16,14 +17,19 @@ import org.springframework.web.servlet.function.ServerResponse
 import java.net.URI
 
 @Configuration
-class Routes {
+class Routes(
+    @Value("\${identity-service-url}")
+    private val authServiceUrl: String,
+    @Value("\${inventory-service-url}")
+    private val inventoryServiceUrl: String
+) {
     private val FALLBACK_ROUTE = "/fallbackRoute"
 
     @Bean
     fun inventoryRoute(): RouterFunction<ServerResponse> {
         return GatewayRouterFunctions
             .route("inventory-service")
-            .route(RequestPredicates.path("/api/v1/inventory/**"), HandlerFunctions.http("http://localhost:3002"))
+            .route(RequestPredicates.path("/api/v1/inventory/**"), HandlerFunctions.http(inventoryServiceUrl))
             .filter(GatewayHeadersFilterFunction())
             .filter(CircuitBreakerFilterFunctions.circuitBreaker("inventoryServiceCircuitBreaker", URI.create("forward:$FALLBACK_ROUTE")))
             .build()
@@ -33,7 +39,7 @@ class Routes {
     fun authService(): RouterFunction<ServerResponse> {
         return GatewayRouterFunctions
             .route("auth-service")
-            .route(RequestPredicates.path("/api/v1/auth/**"), HandlerFunctions.http("http://localhost:3001"))
+            .route(RequestPredicates.path("/api/v1/auth/**"), HandlerFunctions.http(authServiceUrl))
             .filter(CircuitBreakerFilterFunctions.circuitBreaker("authServiceCircuitBreaker", URI.create("forward:$FALLBACK_ROUTE")))
             .build()
     }

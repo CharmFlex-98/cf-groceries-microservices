@@ -10,7 +10,7 @@ data class UserIdResponse(
 
 @FeignClient(
     name = "auth",
-    url = "http://localhost:3001/api/v1/auth"
+    url = "\${identity-service-url}/api/v1/auth"
 )
 interface AuthProxy {
     @GetMapping("/users/{username}/legit")
