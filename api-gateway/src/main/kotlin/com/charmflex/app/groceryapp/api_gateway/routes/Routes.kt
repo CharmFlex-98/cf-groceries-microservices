@@ -1,5 +1,6 @@
 package com.charmflex.app.groceryapp.api_gateway.routes
 
+import com.charmflex.app.groceryapp.api_gateway.filters.GatewayHeadersFilterFunction
 import org.springframework.cloud.gateway.server.mvc.filter.CircuitBreakerFilterFunctions
 import org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctions
 import org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions
@@ -23,6 +24,7 @@ class Routes {
         return GatewayRouterFunctions
             .route("inventory-service")
             .route(RequestPredicates.path("/api/v1/inventory/**"), HandlerFunctions.http("http://localhost:3002"))
+            .filter(GatewayHeadersFilterFunction())
             .filter(CircuitBreakerFilterFunctions.circuitBreaker("inventoryServiceCircuitBreaker", URI.create("forward:$FALLBACK_ROUTE")))
             .build()
     }
