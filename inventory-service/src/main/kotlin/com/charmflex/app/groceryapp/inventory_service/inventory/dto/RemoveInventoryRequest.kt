@@ -1,5 +1,5 @@
 package com.charmflex.app.groceryapp.inventory_service.inventory.dto
 
-class RemoveInventoryRequest(
+data class RemoveInventoryRequest(
     val quantity: Int
 )

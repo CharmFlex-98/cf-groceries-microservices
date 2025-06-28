@@ -2,10 +2,7 @@ package com.charmflex.app.groceryapp.inventory_service.inventory.repositories
 
 import com.charmflex.app.groceryapp.inventory_service.exceptions.GenericException
 import com.charmflex.app.groceryapp.inventory_service.exceptions.InventoryException
-import com.charmflex.app.groceryapp.inventory_service.inventory.domain.models.Inventory
-import com.charmflex.app.groceryapp.inventory_service.inventory.domain.models.InventorySummary
-import com.charmflex.app.groceryapp.inventory_service.inventory.domain.models.UserGrocery
-import com.charmflex.app.groceryapp.inventory_service.inventory.domain.models.UserInventory
+import com.charmflex.app.groceryapp.inventory_service.inventory.domain.models.*
 import com.charmflex.app.groceryapp.inventory_service.inventory.domain.repositories.InventoryRepository
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.DuplicateKeyException
@@ -19,15 +16,16 @@ class InventoryRepositoryImpl(
     private val jdbcTemplate: JdbcTemplate
 ) : InventoryRepository {
     private val namedJDBCTemplate: NamedParameterJdbcTemplate = NamedParameterJdbcTemplate(jdbcTemplate)
+
+
     override fun addGrocery(userGrocery: UserGrocery) {
         val sql = """
         INSERT INTO groceries (item_name, created_by, category_id)
         VALUES (:itemName, :createdBy, :categoryId)
-        ON CONFLICT (created_by, item_name) DO NOTHING
          """.trimIndent()
 
         val params = mapOf(
-            "itemName" to userGrocery.name,
+            "itemName" to userGrocery.name.lowercase(),
             "createdBy" to userGrocery.userId,
             "categoryId" to userGrocery.categoryId
         )
@@ -41,13 +39,13 @@ class InventoryRepositoryImpl(
         }
     }
 
-    override fun removeGrocery(groceryId: Long) {
-        val sql = "DELETE FROM groceries WHERE id = :id"
-        val params = mapOf("id" to groceryId)
-
+    override fun removeGrocery(userId: Int, groceryId: Long) {
+        val sql = "DELETE FROM groceries WHERE id = :id AND created_by = :userId"
+        val params = mapOf("id" to groceryId, "userId" to userId)
 
         try {
-            namedJDBCTemplate.update(sql, params)
+            val rowAffected = namedJDBCTemplate.update(sql, params)
+            if (rowAffected == 0) throw InventoryException.ItemNotFound
         } catch (ex: DataIntegrityViolationException) {
             // Likely caused by foreign key RESTRICT (i.e., still in use)
             throw InventoryException.GroceryRemovalRestriction
@@ -56,7 +54,40 @@ class InventoryRepositoryImpl(
         }
     }
 
-    override fun addInventory(userInventory: UserInventory) {
+    override fun getGroceriesByUser(userId: Int): List<GroceryDetail> {
+        val sql = """
+            SELECT 
+                g.id as item_id, 
+                g.item_name,
+                c.id as category_id, 
+                c.name as category_name
+            FROM groceries g 
+            JOIN inventory_categories c
+            ON g.category_id = c.id
+            WHERE created_by = :userId
+        """.trimIndent()
+        val param = mapOf(
+            "userId" to userId
+        )
+
+        try {
+            return namedJDBCTemplate.query(sql, param) { rs, _ ->
+                GroceryDetail(
+                    rs.getLong("item_id"),
+                    rs.getString("item_name"),
+                    CategoryDetail(
+                        rs.getInt("category_id"),
+                        rs.getString("category_name")
+                    )
+                )
+            }
+        } catch (e: Exception) {
+            throw GenericException
+        }
+    }
+
+    override fun addInventory(addByUserId: Int, userInventory: UserInventory) {
+        assertGroceryBelongsToUser(addByUserId, userInventory.groceryId)
         val sql = """
             INSERT INTO grocery_inventories (grocery_id, quantity, expiry_date)
             VALUES (:id, :quantity, :expiryDate)
@@ -77,12 +108,28 @@ class InventoryRepositoryImpl(
         }
     }
 
-    override fun removeInventory(inventoryId: Long, quantity: Int) {
+    private fun assertGroceryBelongsToUser(userId: Int, groceryId: Long) {
+        val sql = "SELECT COUNT(*) FROM groceries WHERE id = :id AND created_by = :userId"
+        val params = mapOf("id" to groceryId, "userId" to userId)
+
+        val count = namedJDBCTemplate.queryForObject(sql, params, Int::class.java)
+        if (count == null || count == 0) {
+            throw InventoryException.InvalidOperation
+        }
+    }
+
+
+    override fun removeInventory(removeByUserId: Int, inventoryId: Long, quantity: Int) {
         val selectSql = """
-            SELECT quantity FROM grocery_inventories WHERE id = :id
+            SELECT gi.quantity FROM grocery_inventories gi
+            JOIN groceries g ON gi.grocery_id = g.id
+            WHERE gi.id = :id AND g.created_by = :removeByUserId
         """.trimIndent()
 
-        val params = mapOf("id" to inventoryId)
+        val params = mapOf(
+            "id" to inventoryId,
+            "removeByUserId" to removeByUserId
+        )
 
         val currentQuantity: Int? = try {
             namedJDBCTemplate.queryForObject(selectSql, params, Int::class.java)
@@ -115,7 +162,7 @@ class InventoryRepositoryImpl(
         namedJDBCTemplate.update(updateSql, updateParams)
     }
 
-    override fun getUserInventory(userId: Int): InventorySummary {
+    override fun getUserInventory(userId: Int): List<InventorySummary.UserInventory> {
         val sql = """ 
             SELECT 
                 gi.id AS inventory_id,
@@ -139,10 +186,10 @@ class InventoryRepositoryImpl(
                 id = rs.getInt("inventory_id"),
                 quantity = rs.getInt("quantity"),
                 expiryDate = rs.getDate("expiry_date"),
-                groceryDetail = InventorySummary.GroceryDetail(
+                groceryDetail = GroceryDetail(
                     id = rs.getLong("grocery_id"),
                     name = rs.getString("item_name"),
-                    categoryDetail = InventorySummary.CategoryDetail(
+                    categoryDetail = CategoryDetail(
                         id = rs.getInt("category_id"),
                         name = rs.getString("category_name")
                     )
@@ -150,6 +197,19 @@ class InventoryRepositoryImpl(
             )
         }
 
-        return InventorySummary(inventories = results)
+        return results
+    }
+
+    override fun getInventoryCategories(): List<GroceryCategory> {
+        val sql = """
+            SELECT * FROM inventory_categories
+        """.trimIndent()
+
+        return namedJDBCTemplate.query(sql) { result, _ ->
+            GroceryCategory(
+                id = result.getInt("id"),
+                name = result.getString("name")
+            )
+        }
     }
 }

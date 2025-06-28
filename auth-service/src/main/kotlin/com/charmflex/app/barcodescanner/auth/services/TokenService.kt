@@ -1,9 +1,10 @@
 package com.charmflex.app.barcodescanner.auth.services
 
 import io.jsonwebtoken.Claims
-import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
+import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Service
 import java.util.*
 import javax.crypto.SecretKey
@@ -25,12 +26,12 @@ class TokenService {
             .subject(subject)
             .issuer("CharmFlex Studio")
             .issuedAt(Date(currentTime))
-            .expiration(Date(currentTime +  5 * 60 * 1000))
+            .expiration(Date(currentTime +  15 * 60 * 1000))
             .signWith(signingKey)
             .compact()
     }
 
-    fun validateAndExtractUsername(token: String): String? {
+    fun extractUsername(token: String): String? {
         return extractAllClaims(token).subject
     }
 
@@ -40,5 +41,10 @@ class TokenService {
             .build()
             .parseSignedClaims(token)
             .payload
+    }
+
+    fun verifyToken(token: String, userDetails: UserDetails): Boolean {
+        val username = extractUsername(token)
+        return userDetails.username == username
     }
 }

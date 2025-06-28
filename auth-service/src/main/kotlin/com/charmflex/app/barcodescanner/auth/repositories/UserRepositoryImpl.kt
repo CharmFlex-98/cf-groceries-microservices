@@ -22,7 +22,7 @@ internal class UserRepositoryImpl(
         val password = user.hashedPassword
         val createdAt = user.createdAt
         val modifiedAt = user.modifiedAt
-        val lastLogin = user.lastLogin;
+        val lastLogin = user.modifiedAt;
 
         val sql = """
             INSERT INTO users (username, hashed_password, last_login, created_at, modified_at) VALUES (:username, :password, :lastLogin, :createdAt, :modifiedAt)
@@ -32,7 +32,7 @@ internal class UserRepositoryImpl(
             "password" to password,
             "createdAt" to Timestamp.from(createdAt),
             "modifiedAt" to Timestamp.from(modifiedAt),
-            "lastLogin" to Timestamp.from(modifiedAt)
+            "lastLogin" to Timestamp.from(lastLogin)
         )
 
         try {
@@ -75,5 +75,19 @@ internal class UserRepositoryImpl(
 
     override fun getUserById(id: Long) {
         TODO("Not yet implemented")
+    }
+
+    override fun isLegitUser(userId: Int): Boolean {
+        val sql = """
+            SELECT u.username FROM users u WHERE u.id = :userId
+        """.trimIndent()
+        val param = mapOf("userId" to userId)
+
+        return try {
+            namedParameterJdbcTemplate.queryForObject(sql, param, String::class.java)
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }

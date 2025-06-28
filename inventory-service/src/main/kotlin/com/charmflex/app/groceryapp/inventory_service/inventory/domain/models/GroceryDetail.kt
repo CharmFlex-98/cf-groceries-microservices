@@ -1,4 +1,7 @@
 package com.charmflex.app.groceryapp.inventory_service.inventory.domain.models
 
-class GroceryDetail {
-}
+data class GroceryDetail(
+    val id: Long,
+    val name: String,
+    val categoryDetail: CategoryDetail
+)

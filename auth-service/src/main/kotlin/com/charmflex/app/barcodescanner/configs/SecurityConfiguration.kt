@@ -1,6 +1,5 @@
 package com.charmflex.app.barcodescanner.configs
 
-import com.charmflex.app.barcodescanner.auth.filters.JwtFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationManager
@@ -23,9 +22,10 @@ import org.springframework.security.web.authentication.logout.LogoutFilter
 
 
 @Configuration
-@EnableWebSecurity
 internal class SecurityConfiguration {
     private val BASE_API = "api/v1/auth"
+
+
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         return http
@@ -34,13 +34,12 @@ internal class SecurityConfiguration {
             }
             .authorizeHttpRequests {
                 it
-                .requestMatchers("$BASE_API/login", "$BASE_API/register").permitAll()
-                .anyRequest().authenticated()
+                    .anyRequest().permitAll()
             }
             .httpBasic { it.disable() }
             .formLogin { it.disable() }
             .logout { }
-            .addFilterBefore(JwtFilter(), AuthorizationFilter::class.java)
+//            .addFilterBefore(JwtFilter(), AuthorizationFilter::class.java)
             .build()
     }
 

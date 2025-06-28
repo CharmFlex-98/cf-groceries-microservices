@@ -11,15 +11,4 @@ data class InventorySummary(
         val quantity: Int,
         val expiryDate: Date,
     )
-
-    data class GroceryDetail(
-        val id: Long,
-        val name: String,
-        val categoryDetail: CategoryDetail
-    )
-
-    data class CategoryDetail(
-        val id: Int,
-        val name: String
-    )
 }
