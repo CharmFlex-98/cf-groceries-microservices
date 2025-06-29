@@ -34,13 +34,13 @@ services:
     depends_on:
       inventory-db:
         condition: service_healthy
-#
-#  notification-service:
-#    image: charmflex/microservices-grocery-notification-service:latest
-#    ports:
-#      - "3003:3003"
-#    environment:
-#      GATEWAY_AUTH_SECRET: ${GATEWAY_AUTH_SECRET}
+
+  notification-service:
+    image: charmflex/microservices-grocery-notification-service:latest
+    ports:
+      - "3013:3003"
+    environment:
+      GATEWAY_AUTH_SECRET: ${GATEWAY_AUTH_SECRET}
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
