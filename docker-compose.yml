@@ -5,15 +5,18 @@ services:
       - "9000:9000"
     environment:
       GATEWAY_AUTH_SECRET: ${GATEWAY_AUTH_SECRET}
+      IDENTITY_URL: ${IDENTITY_URL}
+      INVENTORY_URL: ${INVENTORY_URL}
 
   identity-service:
     image: charmflex/microservices-grocery-auth-service:latest
-    ports:
-      - "3011:3001"
+#    ports:
+#      - "3011:3001"
     environment:
       GATEWAY_AUTH_SECRET: ${GATEWAY_AUTH_SECRET}
       POSTGRES_USER: ${POSTGRES_USER_AUTH}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_AUTH}
+      POSTGRES_DB: ${POSTGRES_DB_AUTH}
     depends_on:
       auth-db:
         condition: service_healthy
@@ -21,12 +24,13 @@ services:
 
   inventory-service:
     image: charmflex/microservices-grocery-inventory-service:latest
-    ports:
-      - "3012:3002"
+#    ports:
+#      - "3012:3002"
     environment:
       GATEWAY_AUTH_SECRET: ${GATEWAY_AUTH_SECRET}
       POSTGRES_USER: ${POSTGRES_USER_INVENTORY}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_INVENTORY}
+      POSTGRES_DB: ${POSTGRES_DB_INVENTORY}
     depends_on:
       inventory-db:
         condition: service_healthy
@@ -83,9 +87,9 @@ services:
     ports:
       - "5434:5432"
     environment:
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD_INVENTORY}
-      - POSTGRES_USER=${POSTGRES_USER_INVENTORY}
-      - POSTGRES_DB=${POSTGRES_DB_INVENTORY}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_INVENTORY}
+      POSTGRES_USER: ${POSTGRES_USER_INVENTORY}
+      POSTGRES_DB: ${POSTGRES_DB_INVENTORY}
     volumes:
       - postgres_v17_data_inventory:/var/lib/postgresql/data
     healthcheck:
@@ -103,9 +107,9 @@ services:
     ports:
       - "5433:5432"
     environment:
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD_AUTH}
-      - POSTGRES_USER=${POSTGRES_USER_AUTH}
-      - POSTGRES_DB=${POSTGRES_DB_AUTH}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_AUTH}
+      POSTGRES_USER: ${POSTGRES_USER_AUTH}
+      POSTGRES_DB: ${POSTGRES_DB_AUTH}
     volumes:
       - postgres_v17_data_auth:/var/lib/postgresql/data
     healthcheck:
