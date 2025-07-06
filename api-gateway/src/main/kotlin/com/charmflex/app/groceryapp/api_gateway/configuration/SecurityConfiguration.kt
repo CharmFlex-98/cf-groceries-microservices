@@ -41,6 +41,7 @@ internal class SecurityConfiguration {
                     .requestMatchers(
                         "$BASE_API/login",
                         "$BASE_API/register",
+                        "/privacy-policy.html",
                         "/fallbackRoute",
                         "/actuator/health"
                     ).permitAll()
