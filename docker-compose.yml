@@ -122,6 +122,54 @@ services:
       options:
         max-size: 10m
 
+  loki:
+    image: grafana/loki:2.9.2
+    container_name: loki
+    command: [ "-config.file=/etc/loki/local-config.yaml" ]
+    ports:
+     # - "3100:3100"
+    volumes:
+      - ./docker/loki/local-config.yaml:/etc/loki/local-config.yaml:ro
+      - ./docker/loki/data:/loki  # <-- persist chunks, index, compactor
+
+
+
+  prometheus:
+    image: prom/prometheus:v2.46.0
+    container_name: prometheus
+    command:
+      - --enable-feature=exemplar-storage
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=7d     # <-- keep only 7 days of data
+      - --storage.tsdb.retention.size=1GB  # <-- OR max 500MB
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    #ports:
+      #- "9091:9090"
+
+  tempo:
+    image: grafana/tempo:2.2.2
+    container_name: tempo
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      - ./docker/tempo/tempo.yml:/etc/tempo.yaml:ro
+      - ./docker/tempo/data:/tmp/tempo
+   # ports:
+    #  - "3110:3100"  # Tempo
+     # - "9411:9411" # zipkin
+
+  grafana:
+    image: grafana/grafana:10.1.0
+    container_name: grafana
+    volumes:
+      - ./docker/grafana:/etc/grafana/provisioning/datasources:ro
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    ports:
+      - "3000:3000"
+
 
 volumes:
   postgres_v17_data_auth:

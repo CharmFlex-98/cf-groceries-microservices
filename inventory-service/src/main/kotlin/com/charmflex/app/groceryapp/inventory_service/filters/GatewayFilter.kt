@@ -29,4 +29,11 @@ class GatewayFilter(
 
         filterChain.doFilter(request, response)
     }
+
+    override fun shouldNotFilter(request: HttpServletRequest): Boolean {
+        if (request.servletPath.contains("/actuator/prometheus")) {
+            return true
+        }
+        return super.shouldNotFilter(request)
+    }
 }

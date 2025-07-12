@@ -37,6 +37,11 @@ dependencies {
 	implementation("io.jsonwebtoken:jjwt-api:0.12.6")
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
 	runtimeOnly ("io.jsonwebtoken:jjwt-jackson:0.12.6")
+
+	implementation("com.github.loki4j:loki-logback-appender:1.5.1")
+	implementation("io.micrometer:micrometer-registry-prometheus")
+	implementation("io.micrometer:micrometer-tracing-bridge-brave")
+	implementation("io.zipkin.reporter2:zipkin-reporter-brave")
 }
 
 dependencyManagement {
