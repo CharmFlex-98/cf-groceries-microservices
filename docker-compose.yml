@@ -164,9 +164,11 @@ services:
     volumes:
       - ./docker/grafana:/etc/grafana/provisioning/datasources:ro
     environment:
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      GF_SECURITY_ADMIN_USER: ${STAT_USERNAME}
+      GF_SECURITY_ADMIN_PASSWORD: ${STAT_PASSWORD}
+      GF_SERVER_DOMAIN: ${GF_SERVER_DOMAIN}
+      GF_SERVER_ROOT_URL: ${GF_SERVER_ROOT_URL}
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
     ports:
       - "9010:3000"
 
