@@ -43,7 +43,7 @@ internal class SecurityConfiguration {
                         "$BASE_API/register",
                         "/privacy-policy.html",
                         "/fallbackRoute",
-                        "/actuator/health"
+                        "/actuator/**"
                     ).permitAll()
                     .anyRequest().authenticated()
             }

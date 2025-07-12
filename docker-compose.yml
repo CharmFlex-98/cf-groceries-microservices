@@ -37,8 +37,8 @@ services:
 
   notification-service:
     image: charmflex/microservices-grocery-notification-service:latest
-    ports:
-      - "3013:3003"
+    #ports:
+     # - "3013:3003"
     environment:
       GATEWAY_AUTH_SECRET: ${GATEWAY_AUTH_SECRET}
 
@@ -84,8 +84,8 @@ services:
 
   inventory-db:
     image: "postgres:17"
-    ports:
-      - "5434:5432"
+    #ports:
+      #- "5434:5432"
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_INVENTORY}
       POSTGRES_USER: ${POSTGRES_USER_INVENTORY}
@@ -104,8 +104,8 @@ services:
 
   auth-db:
     image: "postgres:17"
-    ports:
-      - "5433:5432"
+   # ports:
+      #- "5433:5432"
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_AUTH}
       POSTGRES_USER: ${POSTGRES_USER_AUTH}
@@ -126,7 +126,7 @@ services:
     image: grafana/loki:2.9.2
     container_name: loki
     command: [ "-config.file=/etc/loki/local-config.yaml" ]
-    ports:
+    #ports:
      # - "3100:3100"
     volumes:
       - ./docker/loki/local-config.yaml:/etc/loki/local-config.yaml:ro
