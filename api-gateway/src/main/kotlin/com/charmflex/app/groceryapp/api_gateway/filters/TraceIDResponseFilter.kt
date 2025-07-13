@@ -18,7 +18,8 @@ class TraceIDResponseFilter(
         filterChain: FilterChain
     ) {
         val traceId = tracer.currentSpan()?.context()?.traceId() ?: "unknown"
-        response.addHeader("trace-id", traceId)
+        response.addHeader("X-Trace-Id", traceId)
+        logger.info("TraceIDResponseFilter triggered. TraceID: $traceId for path: ${request.requestURI}")
 
         filterChain.doFilter(request, response)
     }
