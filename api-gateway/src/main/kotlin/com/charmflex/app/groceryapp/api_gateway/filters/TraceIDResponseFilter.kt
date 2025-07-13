@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 import java.io.IOException
 
-@Component
 class TraceIDResponseFilter(
     private val tracer: Tracer
 ) : OncePerRequestFilter() {
