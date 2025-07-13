@@ -26,7 +26,7 @@ class TokenService {
             .subject(subject)
             .issuer("CharmFlex Studio")
             .issuedAt(Date(currentTime))
-            .expiration(Date(currentTime +  15 * 60 * 1000))
+//            .expiration(Date(currentTime +  15 * 60 * 1000))
             .signWith(signingKey)
             .compact()
     }
